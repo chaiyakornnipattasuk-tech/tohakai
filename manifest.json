@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "tohakai",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "tohakai",
+  "start_url": "/",
+  "theme_color": "#0a0a0f",
+  "id": "ectbbvgtgtbef",
+  "description": "this is an app that are show all emergency call"
+}
