@@ -1,13 +1,1 @@
-{
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "tohakai",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "tohakai",
-  "start_url": "/ts https://chaiyakornnipattasuk-tech.github.io/tohakai/",
-  "theme_color": "#0a0a0f",
-  "id": "tohakai",
-  "description": "{\n  \"background_color\": \"#ffffff\",\n  \"dir\": \"ltr\",\n  \"display\": \"standalone\",\n  \"name\": \"โทรหาใคร\",\n  \"orientation\": \"any\",\n  \"scope\": \"/tohakai/\",\n  \"short_name\": \"โทรหาใคร\",\n  \"start_url\": \"/tohakai/\",\n  \"theme_color\": \"#0a0a0f\"\n}"
-}
+
