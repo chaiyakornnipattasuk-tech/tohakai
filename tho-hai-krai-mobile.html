@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>โทรหาใคร — สายด่วนไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0a0a0f;
+  --s1:     #0f0f18;
+  --s2:     #14141f;
+  --b1:     #1e1e2e;
+  --b2:     #282840;
+  --text:   #c8cce0;
+  --white:  #f0f2ff;
+  --dim:    #5a5e80;
+  --red:    #ff3a3a;
+  --orange: #ff7030;
+  --yellow: #ffc030;
+  --green:  #30d870;
+  --blue:   #4090ff;
+  --purple: #a060ff;
+  --cyan:   #20d0e0;
+  --mono:   'IBM Plex Mono', monospace;
+  --thai:   'Noto Sans Thai', sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--thai);
+  font-size: 15px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-bottom: calc(64px + var(--safe-b));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* no scrollbar on mobile */
+::-webkit-scrollbar { display:none; }
+body { scrollbar-width: none; }
+
+/* ── SCANLINE ── */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.008) 3px,rgba(255,255,255,0.008) 4px);
+  pointer-events:none;
+  z-index:999;
+}
+
+/* ── HEADER (mobile compact) ── */
+header {
+  background: var(--s1);
+  border-bottom: 1px solid var(--b1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-top {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.logo-pulse {
+  width: 36px; height: 36px;
+  background: var(--red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.logo-pulse::before {
+  content:'';
+  position:absolute;
+  inset:-4px;
+  border-radius:50%;
+  border:2px solid var(--red);
+  animation: ripple 2s ease-out infinite;
+}
+
+@keyframes ripple {
+  0%   { opacity:0.8; transform:scale(1); }
+  100% { opacity:0;   transform:scale(1.8); }
+}
+
+.logo-text-block { flex:1; }
+
+.logo-th {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.1;
+}
+
+.logo-en {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-clock {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ── SEARCH BAR (mobile) ── */
+.search-wrap {
+  padding: 0 16px 12px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--s2);
+  border: 1px solid var(--b2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--blue);
+}
+
+.search-bar .s-icon {
+  padding: 12px 12px 12px 14px;
+  color: var(--dim);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px 0;
+  font-family: var(--thai);
+  font-size: 0.9rem;
+  color: var(--white);
+  outline: none;
+}
+
+.search-bar input::placeholder { color: var(--dim); }
+
+.search-clear {
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 1rem;
+  cursor: pointer;
+  display: none;
+}
+
+.search-clear.visible { display: block; }
+
+/* ── CATEGORY PILLS (horizontal scroll) ── */
+.cat-pills {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cat-pills::-webkit-scrollbar { display: none; }
+
+.cat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 20px;
+  font-family: var(--thai);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--dim);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: all 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cat-pill:active { transform: scale(0.95); }
+
+.cat-pill.active {
+  background: var(--cc);
+  border-color: var(--cc);
+  color: var(--white);
+}
+
+.pill-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cc);
+  flex-shrink: 0;
+}
+
+.cat-pill.active .pill-dot { background: rgba(255,255,255,0.5); }
+
+/* ── PAGE ── */
+.page {
+  padding: 0 12px 24px;
+}
+
+/* ── EMERGENCY BANNER (mobile: vertical stack) ── */
+.emergency-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.emg-card {
+  background: var(--ec, var(--s1));
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.emg-card:active { transform: scale(0.98); }
+
+.emg-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 42px;
+  text-align: center;
+}
+
+.emg-body { flex: 1; }
+
+.emg-label {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+}
+
+.emg-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+.emg-number {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--en, var(--white));
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.emg-arrow {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+/* ── SECTION ── */
+.contact-section {
+  margin-bottom: 24px;
+}
+
+.contact-section.hidden { display: none; }
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--b1);
+}
+
+.sec-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sec-count {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+}
+
+/* ── CONTACT GRID (single column mobile) ── */
+.contact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── CONTACT CARD (mobile-optimized) ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+
+.card:active {
+  transform: scale(0.98);
+  border-color: var(--cc, var(--b2));
+}
+
+.card-head {
+  padding: 14px 14px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.card-icon-wrap {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.card-info { flex:1; min-width:0; }
+
+.card-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.card-sub {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+}
+
+.card-tag {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  padding: 3px 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: var(--dim);
+  flex-shrink: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* number display */
+.card-numbers {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.num-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.num-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+
+.num-val {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cc, var(--white));
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.num-val.big {
+  font-size: 1.6rem;
+  letter-spacing: 0.06em;
+}
+
+/* call button — BIG touch target */
+.card-footer {
+  padding: 8px 14px 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.call-btn {
+  flex: 1;
+  background: var(--cc, var(--b2));
+  border: none;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: var(--thai);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.12s;
+  min-height: 48px; /* Android min touch target */
+}
+
+.call-btn:active { opacity: 0.8; transform: scale(0.97); }
+
+.call-btn.outline {
+  background: none;
+  border: 1px solid var(--b2);
+  color: var(--dim);
+  flex: 0 0 48px;
+  padding: 14px;
+  border-radius: 10px;
+}
+
+.call-btn.outline:active { border-color: var(--text); color: var(--text); }
+
+/* ── VIGILANTE SECTION ── */
+.vig-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vig-card {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+
+.vig-card:active {
+  transform: scale(0.98);
+  border-color: var(--purple);
+}
+
+.vig-head {
+  padding: 14px 14px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--b1);
+}
+
+.vig-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.vig-name-block { flex:1; min-width:0; }
+
+.vig-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 1px;
+}
+
+.vig-en {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+
+.vig-verified {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  padding: 3px 8px;
+  background: rgba(48,216,112,0.1);
+  border: 1px solid rgba(48,216,112,0.3);
+  border-radius: 6px;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.vig-body {
+  padding: 10px 14px;
+}
+
+.vig-desc {
+  font-size: 0.82rem;
+  color: var(--dim);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.vig-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.vig-tag {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  padding: 3px 8px;
+  background: rgba(160,96,255,0.1);
+  border: 1px solid rgba(160,96,255,0.2);
+  border-radius: 6px;
+  color: var(--purple);
+  letter-spacing: 0.06em;
+}
+
+.vig-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.vig-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.vs-num {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.vs-lbl {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vig-footer {
+  padding: 8px 14px 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.fb-btn {
+  flex: 1;
+  background: #1877f2;
+  border: none;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: var(--thai);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  min-height: 48px;
+}
+
+.fb-btn:active { opacity: 0.85; transform: scale(0.97); }
+
+.vig-footer .call-btn.outline {
+  border-color: rgba(160,96,255,0.3);
+  color: var(--purple);
+}
+
+/* ── NOTE BANNER ── */
+.note-banner {
+  background: rgba(255,192,48,0.06);
+  border: 1px solid rgba(255,192,48,0.2);
+  border-left: 3px solid var(--yellow);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  color: #a08040;
+  line-height: 1.65;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.note-icon { font-size: 1rem; flex-shrink:0; margin-top:1px; }
+
+/* ── SEARCH HIGHLIGHT ── */
+.card.hidden, .vig-card.hidden, .emg-card.hidden { display:none; }
+
+/* ── BOTTOM NAV (Android-style) ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--s1);
+  border-top: 1px solid var(--b1);
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 calc(6px + var(--safe-b));
+  z-index: 200;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.bnav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-family: var(--thai);
+  font-size: 0.58rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-width: 56px;
+  border-radius: 8px;
+}
+
+.bnav-item:active { background: rgba(255,255,255,0.04); }
+
+.bnav-item.active { color: var(--red); }
+
+.bnav-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* ── FLOATING 191 BUTTON ── */
+.fab-191 {
+  position: fixed;
+  bottom: calc(76px + var(--safe-b));
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  background: var(--red);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  z-index: 150;
+  box-shadow: 0 4px 20px rgba(255,58,58,0.4);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.fab-191:active { transform: scale(0.9); }
+
+.fab-191::before {
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:50%;
+  border:2px solid var(--red);
+  animation: ripple 2.5s ease-out infinite;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--b1);
+  background: var(--s1);
+  padding: 16px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+  line-height: 1.8;
+}
+
+footer span { color: var(--red); }
+
+/* ── SCROLL-TO-TOP ── */
+.scroll-top {
+  position: fixed;
+  bottom: calc(76px + var(--safe-b));
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  background: var(--s2);
+  border: 1px solid var(--b2);
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--dim);
+  cursor: pointer;
+  z-index: 150;
+}
+
+.scroll-top.visible { display: flex; }
+.scroll-top:active { background: var(--b1); }
+
+/* ── MODAL (for info) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 300;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-sheet {
+  background: var(--s1);
+  border-top: 1px solid var(--b2);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  padding-bottom: calc(20px + var(--safe-b));
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--b2);
+  border-radius: 4px;
+  margin: 0 auto 16px;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.modal-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.modal-close {
+  width: 100%;
+  padding: 14px;
+  background: var(--b1);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--thai);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.modal-close:active { background: var(--b2); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card, .vig-card, .emg-card {
+  animation: fadeUp 0.3s ease-out both;
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-top">
+    <div class="logo-block">
+      <div class="logo-pulse">🆘</div>
+      <div class="logo-text-block">
+        <div class="logo-th">โทรหาใคร?</div>
+        <div class="logo-en">Thai Emergency Directory</div>
+      </div>
+    </div>
+    <div class="header-clock">
+      <div class="live-dot"></div>
+      <span id="clk">--:--</span>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-bar">
+      <span class="s-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="ค้นหาหมายเลข หรือ หน่วยงาน..." oninput="doSearch()" enterkeyhint="search">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <div class="cat-pills" id="catPills">
+    <button class="cat-pill active" style="--cc:var(--red)" onclick="setFilter(this,'all')">
+      <div class="pill-dot"></div>ทั้งหมด
+    </button>
+    <button class="cat-pill" style="--cc:var(--red)" onclick="setFilter(this,'emergency')">
+      <div class="pill-dot"></div>ฉุกเฉิน
+    </button>
+    <button class="cat-pill" style="--cc:var(--orange)" onclick="setFilter(this,'fire')">
+      <div class="pill-dot"></div>ดับเพลิง
+    </button>
+    <button class="cat-pill" style="--cc:var(--blue)" onclick="setFilter(this,'medical')">
+      <div class="pill-dot"></div>การแพทย์
+    </button>
+    <button class="cat-pill" style="--cc:var(--yellow)" onclick="setFilter(this,'government')">
+      <div class="pill-dot"></div>ราชการ
+    </button>
+    <button class="cat-pill" style="--cc:var(--green)" onclick="setFilter(this,'consumer')">
+      <div class="pill-dot"></div>ผู้บริโภค
+    </button>
+    <button class="cat-pill" style="--cc:var(--purple)" onclick="setFilter(this,'vigilante')">
+      <div class="pill-dot"></div>กลุ่มอาสา
+    </button>
+  </div>
+</header>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- EMERGENCY BANNER -->
+  <div class="emergency-banner" id="emergencyBanner">
+    <a class="emg-card" href="tel:191" style="--ec:rgba(255,58,58,0.1);--en:var(--red)">
+      <div class="emg-icon">🚔</div>
+      <div class="emg-body">
+        <div class="emg-label">Emergency</div>
+        <div class="emg-name">ตำรวจ / Police</div>
+        <div class="emg-number">191</div>
+      </div>
+      <div class="emg-arrow">→</div>
+    </a>
+    <a class="emg-card" href="tel:1669" style="--ec:rgba(255,112,48,0.1);--en:var(--orange)">
+      <div class="emg-icon">🚑</div>
+      <div class="emg-body">
+        <div class="emg-label">Emergency Medical</div>
+        <div class="emg-name">EMS / กู้ชีพ</div>
+        <div class="emg-number">1669</div>
+      </div>
+      <div class="emg-arrow">→</div>
+    </a>
+    <a class="emg-card" href="tel:199" style="--ec:rgba(255,160,48,0.1);--en:var(--yellow)">
+      <div class="emg-icon">🔥</div>
+      <div class="emg-body">
+        <div class="emg-label">Fire Emergency</div>
+        <div class="emg-name">ดับเพลิง / Fire</div>
+        <div class="emg-number">199</div>
+      </div>
+      <div class="emg-arrow">→</div>
+    </a>
+  </div>
+
+  <!-- SECTIONS -->
+  <div class="contact-section" id="sec-emergency" data-cat="emergency">
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--red)">🚨 สายด่วนฉุกเฉิน</div>
+      <div class="sec-count" id="cnt-emergency"></div>
+    </div>
+    <div class="contact-grid" id="grid-emergency"></div>
+  </div>
+
+  <div class="contact-section" id="sec-fire" data-cat="fire">
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--orange)">🔥 ดับเพลิงและภัยพิบัติ</div>
+      <div class="sec-count" id="cnt-fire"></div>
+    </div>
+    <div class="contact-grid" id="grid-fire"></div>
+  </div>
+
+  <div class="contact-section" id="sec-medical" data-cat="medical">
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--blue)">🏥 โรงพยาบาลและการแพทย์</div>
+      <div class="sec-count" id="cnt-medical"></div>
+    </div>
+    <div class="contact-grid" id="grid-medical"></div>
+  </div>
+
+  <div class="contact-section" id="sec-government" data-cat="government">
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--yellow)">🏛️ หน่วยงานราชการ</div>
+      <div class="sec-count" id="cnt-government"></div>
+    </div>
+    <div class="contact-grid" id="grid-government"></div>
+  </div>
+
+  <div class="contact-section" id="sec-consumer" data-cat="consumer">
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--green)">📞 สายด่วนผู้บริโภคและสิทธิ</div>
+      <div class="sec-count" id="cnt-consumer"></div>
+    </div>
+    <div class="contact-grid" id="grid-consumer"></div>
+  </div>
+
+  <div class="contact-section" id="sec-vigilante" data-cat="vigilante">
+    <div class="note-banner">
+      <span class="note-icon">⚠️</span>
+      <span>กลุ่มอาสาเหล่านี้ <strong>ไม่ใช่หน่วยงานรัฐ</strong> — เป็นกลุ่มประชาชนที่ทำงานเพื่อสาธารณะ กรณีฉุกเฉินให้โทรสายด่วนรัฐก่อนเสมอ</span>
+    </div>
+    <div class="sec-head">
+      <div class="sec-title" style="color:var(--purple)">🦸 กลุ่มอาสา / Vigilante</div>
+      <div class="sec-count" id="cnt-vigilante"></div>
+    </div>
+    <div class="vig-grid" id="grid-vigilante"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>โทรหาใคร?</span> — สารบัญสายด่วนไทย<br>
+  ข้อมูลอ้างอิงจากแหล่งสาธารณะ — ตรวจสอบกับหน่วยงานโดยตรงเสมอ
+</footer>
+
+<!-- FLOATING 191 BUTTON -->
+<a class="fab-191" href="tel:191" aria-label="โทร 191">191</a>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" onclick="navTo(this,'all')">
+    <span class="bnav-icon">📋</span>ทั้งหมด
+  </button>
+  <button class="bnav-item" onclick="navTo(this,'emergency')">
+    <span class="bnav-icon">🚨</span>ฉุกเฉิน
+  </button>
+  <button class="bnav-item" onclick="navTo(this,'medical')">
+    <span class="bnav-icon">🏥</span>การแพทย์
+  </button>
+  <button class="bnav-item" onclick="navTo(this,'government')">
+    <span class="bnav-icon">🏛️</span>ราชการ
+  </button>
+  <button class="bnav-item" onclick="navTo(this,'vigilante')">
+    <span class="bnav-icon">🦸</span>อาสา
+  </button>
+</nav>
+
+<!-- INFO MODAL (bottom sheet style) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-text" id="modalText"></div>
+    <button class="modal-close" onclick="closeModal()">ปิด</button>
+  </div>
+</div>
+
+<!-- ═══════ DATA ═══════ -->
+<script>
+const CONTACTS = {
+  emergency: [
+    {icon:"🚔",name:"สายด่วนตำรวจ",sub:"Royal Thai Police",tag:"ฉุกเฉิน",numbers:[{label:"สายด่วน",val:"191",big:true},{label:"แจ้งเหตุ",val:"1191"}],color:"var(--red)",note:"โทรได้ตลอด 24 ชั่วโมงทั่วประเทศ"},
+    {icon:"🆘",name:"ศูนย์รับแจ้งเหตุแห่งชาติ",sub:"National Emergency Command",tag:"ฉุกเฉิน",numbers:[{label:"สายด่วน",val:"112",big:true}],color:"var(--red)",note:"รับทุกเรื่องฉุกเฉิน เชื่อมต่อทุกหน่วย"},
+    {icon:"🌊",name:"กรมป้องกันและบรรเทาสาธารณภัย",sub:"DDPM — Disaster Prevention",tag:"ภัยพิบัติ",numbers:[{label:"สายด่วน",val:"1784",big:true}],color:"var(--blue)",note:"ภัยพิบัติ น้ำท่วม แผ่นดินไหว พายุ"},
+    {icon:"🏔️",name:"กรมอุตุนิยมวิทยา",sub:"Meteorological Department",tag:"สภาพอากาศ",numbers:[{label:"สายด่วน",val:"1182",big:true}],color:"var(--cyan)",note:"พยากรณ์อากาศ เตือนภัยล่วงหน้า"},
+    {icon:"🚁",name:"กองทัพเรือ — ค้นหากู้ภัยทางทะเล",sub:"Royal Thai Navy SAR",tag:"ทะเล",numbers:[{label:"ศูนย์ SAR",val:"02-475-5665"},{label:"สำรอง",val:"02-475-4000"}],color:"var(--blue)",note:"ค้นหาและกู้ภัยทางทะเล"},
+    {icon:"🛡️",name:"กองอำนวยการรักษาความมั่นคงภายใน",sub:"ISOC",tag:"ความมั่นคง",numbers:[{label:"สายด่วน",val:"1341",big:true}],color:"var(--yellow)",note:"รายงานข่าวกระทบความมั่นคงแห่งชาติ"},
+    {icon:"👮",name:"ตำรวจท่องเที่ยว",sub:"Tourist Police",tag:"ท่องเที่ยว",numbers:[{label:"สายด่วน",val:"1155",big:true},{label:"สำรอง",val:"02-356-0565"}],color:"var(--blue)",note:"ช่วยเหลือนักท่องเที่ยว มีล่ามภาษา"},
+    {icon:"🚓",name:"ตำรวจทางหลวง",sub:"Highway Police",tag:"ทางหลวง",numbers:[{label:"สายด่วน",val:"1193",big:true}],color:"var(--orange)",note:"อุบัติเหตุทางหลวง รถเสีย"},
+    {icon:"💂",name:"กองบัญชาการตำรวจนครบาล",sub:"Metropolitan Police Bureau",tag:"กทม.",numbers:[{label:"สำนักงาน",val:"02-205-2000"}],color:"var(--red)",note:"ตำรวจกรุงเทพมหานคร"},
+  ],
+  fire: [
+    {icon:"🔥",name:"ดับเพลิงกรุงเทพฯ",sub:"Bangkok Fire Department",tag:"กทม.",numbers:[{label:"สายด่วน",val:"199",big:true},{label:"สำนักงาน",val:"02-544-4000"}],color:"var(--orange)",note:"ครอบคลุม 50 เขตในกรุงเทพมหานคร"},
+    {icon:"🚒",name:"ดับเพลิงเชียงใหม่",sub:"Chiang Mai Fire Department",tag:"เชียงใหม่",numbers:[{label:"สายด่วน",val:"053-276-552"},{label:"กลาง",val:"199"}],color:"var(--orange)",note:"พื้นที่จังหวัดเชียงใหม่"},
+    {icon:"🚒",name:"ดับเพลิงชลบุรี",sub:"Chonburi Fire Department",tag:"ชลบุรี",numbers:[{label:"สายด่วน",val:"038-272-222"},{label:"กลาง",val:"199"}],color:"var(--orange)",note:"พื้นที่ชลบุรี พัทยา บางแสน"},
+    {icon:"🌲",name:"กรมป่าไม้ — ไฟป่า",sub:"Royal Forest Department",tag:"ไฟป่า",numbers:[{label:"สายด่วน",val:"1362",big:true}],color:"var(--green)",note:"แจ้งเหตุไฟป่าและบุกรุกพื้นที่ป่า"},
+    {icon:"☢️",name:"สารเคมีและวัตถุอันตราย",sub:"Hazmat — กรมโรงงานอุตสาหกรรม",tag:"อันตราย",numbers:[{label:"สายด่วน",val:"1564",big:true}],color:"var(--yellow)",note:"เหตุสารเคมีรั่วไหล วัตถุระเบิด ของอันตราย"},
+    {icon:"🚒",name:"ดับเพลิงภูเก็ต",sub:"Phuket Fire Department",tag:"ภูเก็ต",numbers:[{label:"สายด่วน",val:"076-211-144"},{label:"กลาง",val:"199"}],color:"var(--orange)",note:"พื้นที่ภูเก็ต กะตะ กะรน"},
+    {icon:"🚒",name:"ดับเพลิงขอนแก่น",sub:"Khon Kaen Fire Department",tag:"ขอนแก่น",numbers:[{label:"สายด่วน",val:"043-336-177"},{label:"กลาง",val:"199"}],color:"var(--orange)",note:"พื้นที่จังหวัดขอนแก่น"},
+    {icon:"🚒",name:"ดับเพลิงนครราชสีมา",sub:"Nakhon Ratchasima Fire Dept",tag:"โคราช",numbers:[{label:"สายด่วน",val:"044-253-305"},{label:"กลาง",val:"199"}],color:"var(--orange)",note:"พื้นที่โคราช ปากช่อง"},
+  ],
+  medical: [
+    {icon:"🚑",name:"EMS — กู้ชีพฉุกเฉิน",sub:"Emergency Medical Service",tag:"ฉุกเฉิน",numbers:[{label:"สายด่วน",val:"1669",big:true}],color:"var(--red)",note:"ส่งรถพยาบาลทั่วประเทศ 24 ชั่วโมง"},
+    {icon:"🏥",name:"โรงพยาบาลรามาธิบดี",sub:"Ramathibodi Hospital · Mahidol",tag:"กทม.",numbers:[{label:"ห้องฉุกเฉิน",val:"02-201-1000"},{label:"นัดหมาย",val:"02-201-1111"}],color:"var(--blue)",note:"รพ.มหาวิทยาลัยมหิดล ถ.พระราม 6"},
+    {icon:"🏥",name:"โรงพยาบาลศิริราช",sub:"Siriraj Hospital · Mahidol",tag:"กทม.",numbers:[{label:"ห้องฉุกเฉิน",val:"02-419-7000"},{label:"กลาง",val:"02-419-7000"}],color:"var(--blue)",note:"รพ.เก่าแก่ที่สุดในไทย บางกอกน้อย"},
+    {icon:"🏥",name:"โรงพยาบาลจุฬาลงกรณ์",sub:"King Chulalongkorn Memorial Hospital",tag:"กทม.",numbers:[{label:"ห้องฉุกเฉิน",val:"02-256-4000"},{label:"กลาง",val:"02-256-4000"}],color:"var(--blue)",note:"สภากาชาดไทย ปทุมวัน"},
+    {icon:"🏥",name:"โรงพยาบาลมหาราชนครเชียงใหม่",sub:"Maharaj Nakorn Chiang Mai Hospital",tag:"เชียงใหม่",numbers:[{label:"ห้องฉุกเฉิน",val:"053-935-000"},{label:"กลาง",val:"053-935-000"}],color:"var(--blue)",note:"รพ.ขนาดใหญ่ ภาคเหนือ มหาวิทยาลัยเชียงใหม่"},
+    {icon:"🏥",name:"โรงพยาบาลขอนแก่น",sub:"Khon Kaen Regional Hospital",tag:"ขอนแก่น",numbers:[{label:"ห้องฉุกเฉิน",val:"043-009-900"},{label:"กลาง",val:"043-336-789"}],color:"var(--blue)",note:"รพ.ประจำภาคตะวันออกเฉียงเหนือ"},
+    {icon:"🧠",name:"สายด่วนสุขภาพจิต",sub:"Department of Mental Health",tag:"สุขภาพจิต",numbers:[{label:"สายด่วน",val:"1323",big:true}],color:"var(--purple)",note:"วิกฤตสุขภาพจิต ซึมเศร้า ฆ่าตัวตาย 24 ชม."},
+    {icon:"💊",name:"ศูนย์พิษวิทยา",sub:"Poison Control Center",tag:"พิษ",numbers:[{label:"สายด่วน",val:"02-201-1083"},{label:"สำรอง",val:"1669"}],color:"var(--green)",note:"กินยาเกินขนาด สัมผัสสารพิษ แมลงมีพิษ"},
+    {icon:"🏥",name:"โรงพยาบาลสงขลานครินทร์",sub:"Songklanagarind Hospital",tag:"สงขลา",numbers:[{label:"ห้องฉุกเฉิน",val:"074-451-650"},{label:"กลาง",val:"074-451-000"}],color:"var(--blue)",note:"รพ.ใหญ่ภาคใต้ มหาวิทยาลัยสงขลา"},
+    {icon:"🏥",name:"โรงพยาบาลธรรมศาสตร์เฉลิมพระเกียรติ",sub:"Thammasat University Hospital",tag:"ปทุมธานี",numbers:[{label:"ห้องฉุกเฉิน",val:"02-926-9999"},{label:"กลาง",val:"02-926-9000"}],color:"var(--blue)",note:"รพ.รังสิต คลองหลวง"},
+    {icon:"🏥",name:"โรงพยาบาลพระมงกุฎเกล้า",sub:"Phramongkutklao Hospital",tag:"กทม.",numbers:[{label:"ห้องฉุกเฉิน",val:"02-354-7600"},{label:"กลาง",val:"02-354-7000"}],color:"var(--blue)",note:"รพ.ทหาร ราชวิถี"},
+    {icon:"🏥",name:"โรงพยาบาลศรีนครินทร์",sub:"Srinagarind Hospital",tag:"ขอนแก่น",numbers:[{label:"ห้องฉุกเฉิน",val:"043-366-819"},{label:"กลาง",val:"043-363-000"}],color:"var(--blue)",note:"รพ.มหาวิทยาลัยขอนแก่น"},
+    {icon:"🧒",name:"โรงพยาบาลเด็กราชนครินทร์",sub:"Queen Sirikit National Institute",tag:"เด็ก",numbers:[{label:"ห้องฉุกเฉิน",val:"02-354-8334"},{label:"กลาง",val:"02-354-8400"}],color:"var(--purple)",note:"รพ.เด็กเฉพาะทาง ราชวิถี"},
+    {icon:"👩",name:"สถาบันบำราศนราดูร",sub:"Bamrasnaradura Infectious Disease",tag:"โรคติดต่อ",numbers:[{label:"ห้องฉุกเฉิน",val:"02-590-3411"},{label:"กลาง",val:"02-590-3000"}],color:"var(--orange)",note:"โรคติดต่อ COVID-19 ไข้เลือดออก"},
+    {icon:"🦷",name:"คณะทันตแพทย์ จุฬา",sub:"Chulalongkorn Dental Hospital",tag:"ทันตกรรม",numbers:[{label:"นัดหมาย",val:"02-218-8627"},{label:"ฉุกเฉิน",val:"02-218-8636"}],color:"var(--cyan)",note:"ทันตกรรม รากฟัน ทำฟัน"},
+  ],
+  government: [
+    {icon:"🗳️",name:"กกต. — คณะกรรมการการเลือกตั้ง",sub:"Election Commission of Thailand",tag:"การเมือง",numbers:[{label:"สายด่วน",val:"02-610-5200"},{label:"แจ้งเหตุ",val:"02-610-5333"}],color:"var(--yellow)",note:"แจ้งทุจริตเลือกตั้ง ร้องเรียนพรรคการเมือง"},
+    {icon:"⚖️",name:"ป.ป.ช. — ป้องกันปราบปรามทุจริต",sub:"NACC — Anti-Corruption",tag:"ทุจริต",numbers:[{label:"สายด่วน",val:"1205",big:true}],color:"var(--yellow)",note:"แจ้งเบาะแสทุจริต ข้าราชการโกง 24 ชม."},
+    {icon:"💰",name:"ป.ป.ส. — ปราบปรามยาเสพติด",sub:"ONCB — Narcotics Control",tag:"ยาเสพติด",numbers:[{label:"สายด่วน",val:"1386",big:true}],color:"var(--orange)",note:"แจ้งเบาะแสยาเสพติด ผู้ค้า แหล่งผลิต"},
+    {icon:"🌿",name:"กรมสรรพสามิต",sub:"Excise Department",tag:"สรรพสามิต",numbers:[{label:"สายด่วน",val:"1713",big:true}],color:"var(--yellow)",note:"แจ้งลักลอบสินค้าหนีภาษี แอลกอฮอล์เถื่อน"},
+    {icon:"🌏",name:"กรมสอบสวนคดีพิเศษ (DSI)",sub:"Department of Special Investigation",tag:"คดีพิเศษ",numbers:[{label:"สายด่วน",val:"02-831-9888"},{label:"สำรอง",val:"1202"}],color:"var(--red)",note:"คดีพิเศษ อาชญากรรมข้ามชาติ ฉ้อโกง"},
+    {icon:"🏦",name:"สคบ. — คุ้มครองผู้บริโภค",sub:"Consumer Protection Board",tag:"ผู้บริโภค",numbers:[{label:"สายด่วน",val:"1166",big:true}],color:"var(--green)",note:"โกงผู้บริโภค สินค้าปลอม โฆษณาเกินจริง"},
+    {icon:"💼",name:"กรมสวัสดิการและคุ้มครองแรงงาน",sub:"Department of Labour Protection",tag:"แรงงาน",numbers:[{label:"สายด่วน",val:"1546",big:true}],color:"var(--blue)",note:"ละเมิดสิทธิแรงงาน ค่าจ้างไม่ตรง โรงงาน"},
+    {icon:"🌾",name:"กรมพัฒนาที่ดิน",sub:"Land Development Department",tag:"ที่ดิน",numbers:[{label:"สายด่วน",val:"1760",big:true}],color:"var(--yellow)",note:"ปัญหาที่ดิน โฉนด น้ำท่วม ดินถล่ม"},
+    {icon:"🌐",name:"กระทรวงดิจิทัล — ไซเบอร์",sub:"Ministry of Digital Economy",tag:"ไซเบอร์",numbers:[{label:"สายด่วน",val:"1212",big:true}],color:"var(--cyan)",note:"อาชญากรรมออนไลน์ โกงอินเทอร์เน็ต แฮก"},
+    {icon:"🌳",name:"กรมป่าไม้ / สัตว์ป่า",sub:"Royal Forest / Wildlife Department",tag:"สิ่งแวดล้อม",numbers:[{label:"ป่าไม้",val:"1362",big:true},{label:"สัตว์ป่า",val:"1800-099-696"}],color:"var(--green)",note:"บุกรุกป่า ค้าสัตว์ป่าผิดกฎหมาย ไฟป่า"},
+    {icon:"🏛️",name:"สำนักงานศาลยุติธรรม",sub:"Office of the Judiciary",tag:"ศาล",numbers:[{label:"สำนักงาน",val:"02-541-2500"},{label:"สายด่วน",val:"1569"}],color:"var(--purple)",note:"สอบถามคดีความ ศาล นัดพิจารณา"},
+    {icon:"👨‍⚖️",name:"สำนักงานอัยการสูงสุด",sub:"Office of the Attorney General",tag:"อัยการ",numbers:[{label:"สำนักงาน",val:"02-141-8888"},{label:"ร้องเรียน",val:"1169"}],color:"var(--red)",note:"ร้องทุกข์ผู้เสียหาย ปรึกษากฎหมาย"},
+    {icon:"🔐",name:"กรมราชทัณฑ์",sub:"Department of Corrections",tag:"เรือนจำ",numbers:[{label:"สายด่วน",val:"1111",big:true}],color:"var(--orange)",note:"สอบถามผู้ต้องขัง เยี่ยมญาติ"},
+    {icon:"🆔",name:"กรมการปกครอง",sub:"Department of Provincial Administration",tag:"ทะเบียน",numbers:[{label:"สายด่วน",val:"1548",big:true}],color:"var(--blue)",note:"บัตรประชาชน ทะเบียนบ้าน เอกสาร"},
+    {icon:"📑",name:"สำนักงานคณะกรรมการข้อมูลข่าวสาร",sub:"Office of Information Commission",tag:"ข้อมูล",numbers:[{label:"สายด่วน",val:"02-141-7000"}],color:"var(--cyan)",note:"ขอข้อมูลราชการ โปร่งใส"},
+    {icon:"🔫",name:"กองปราบปรามการค้ามนุษย์",sub:"Anti-Trafficking in Persons",tag:"ค้ามนุษย์",numbers:[{label:"สายด่วน",val:"1300",big:true}],color:"var(--red)",note:"แจ้งเบาะแสค้ามนุษย์ แรงงานทาส"},
+    {icon:"👶",name:"กรมกิจการเด็กและเยาวชน",sub:"Department of Children and Youth",tag:"เด็ก",numbers:[{label:"สายด่วน",val:"1387",big:true}],color:"var(--purple)",note:"ทารุณกรรมเด็ก เด็กถูกทอดทิ้ง"},
+    {icon:"👵",name:"กรมกิจการผู้สูงอายุ",sub:"Department of Older Persons",tag:"ผู้สูงอายุ",numbers:[{label:"สายด่วน",val:"1685",big:true}],color:"var(--orange)",note:"ช่วยเหลือผู้สูงอายุ ถูกทอดทิ้ง"},
+    {icon:"👩‍🦽",name:"กรมส่งเสริมคนพิการ",sub:"Dept of Empowerment of Persons with Disabilities",tag:"คนพิการ",numbers:[{label:"สายด่วน",val:"1479",big:true}],color:"var(--blue)",note:"สิทธิคนพิการ สวัสดิการ"},
+  ],
+  consumer: [
+    {icon:"📢",name:"สคบ. — ร้องเรียนผู้บริโภค",sub:"Consumer Protection Board",tag:"ผู้บริโภค",numbers:[{label:"สายด่วน",val:"1166",big:true}],color:"var(--green)",note:"ถูกโกง สินค้าเสีย บริการไม่ได้มาตรฐาน"},
+    {icon:"🏦",name:"ธนาคารแห่งประเทศไทย",sub:"Bank of Thailand",tag:"การเงิน",numbers:[{label:"สายด่วน",val:"1213",big:true}],color:"var(--yellow)",note:"ปัญหาธนาคาร สินเชื่อ บัตรเครดิต ดอกเบี้ยเกิน"},
+    {icon:"📱",name:"กสทช. — โทรคมนาคม",sub:"National Broadcasting & Telecom",tag:"โทรคม",numbers:[{label:"สายด่วน",val:"1200",big:true}],color:"var(--cyan)",note:"ปัญหาสัญญาณ เน็ตช้า ถูกตัดสัญญาณ"},
+    {icon:"💊",name:"อย. — อาหารและยา",sub:"FDA Thailand",tag:"อาหาร/ยา",numbers:[{label:"สายด่วน",val:"1556",big:true}],color:"var(--orange)",note:"อาหารไม่ปลอดภัย ยาปลอม เสริมอาหารผิดกฎ"},
+    {icon:"🚗",name:"กรมการขนส่งทางบก",sub:"Land Transport Department",tag:"ขนส่ง",numbers:[{label:"สายด่วน",val:"1584",big:true}],color:"var(--blue)",note:"รถสาธารณะ แท็กซี่โก่งราคา รถไม่ปลอดภัย"},
+    {icon:"⚡",name:"การไฟฟ้า MEA / PEA",sub:"Metropolitan / Provincial Electricity",tag:"ไฟฟ้า",numbers:[{label:"MEA (กทม.)",val:"1130"},{label:"PEA (ต่างจังหวัด)",val:"1129"}],color:"var(--yellow)",note:"ไฟดับ ไฟช็อต สายไฟอันตราย บิลผิดปกติ"},
+    {icon:"💧",name:"การประปา MWA / PWA",sub:"Metropolitan / Provincial Waterworks",tag:"ประปา",numbers:[{label:"MWA (กทม.)",val:"1125"},{label:"PWA (ต่างจังหวัด)",val:"1662"}],color:"var(--cyan)",note:"น้ำไม่ไหล ท่อแตก น้ำสกปรก บิลผิดปกติ"},
+    {icon:"🌿",name:"กรมควบคุมมลพิษ",sub:"Pollution Control Department",tag:"มลพิษ",numbers:[{label:"สายด่วน",val:"1650",big:true}],color:"var(--green)",note:"ฝุ่น PM2.5 โรงงานปล่อยควัน น้ำเสีย เสียงดัง"},
+    {icon:"🏠",name:"การเคหะแห่งชาติ",sub:"National Housing Authority",tag:"ที่อยู่อาศัย",numbers:[{label:"สายด่วน",val:"1555",big:true}],color:"var(--blue)",note:"บ้านเช่า คอนโด ปัญหาที่พัก"},
+    {icon:"🚕",name:"Grab / Bolt แจ้งปัญหา",sub:"Ride-Hailing Support",tag:"แท็กซี่",numbers:[{label:"Grab",val:"02-949-4222"},{label:"Bolt",val:"02-105-4965"}],color:"var(--green)",note:"โกงค่าโดยสาร ขับรถไม่ดี"},
+    {icon:"📺",name:"กสทช. — คุ้มครองผู้บริโภค",sub:"NBTC Consumer Protection",tag:"โทรคม",numbers:[{label:"สายด่วน",val:"1200",big:true}],color:"var(--cyan)",note:"เน็ตช้า ค่าโทรผิด บริการไม่ดี"},
+    {icon:"📮",name:"ไปรษณีย์ไทย",sub:"Thailand Post",tag:"ไปรษณีย์",numbers:[{label:"สายด่วน",val:"1545",big:true}],color:"var(--orange)",note:"พัสดุหาย ส่งช้า ร้องเรียนบริการ"},
+    {icon:"✈️",name:"สำนักงานการบินพลเรือนแห่งประเทศไทย",sub:"Civil Aviation Authority",tag:"การบิน",numbers:[{label:"สายด่วน",val:"1367",big:true}],color:"var(--blue)",note:"ปัญหาสายการบิน กระเป๋าหาย"},
+    {icon:"🚂",name:"การรถไฟแห่งประเทศไทย",sub:"State Railway of Thailand",tag:"รถไฟ",numbers:[{label:"สายด่วน",val:"1690",big:true}],color:"var(--green)",note:"ตารางรถไฟ จองตั๋ว ร้องเรียน"},
+    {icon:"💳",name:"ธนาคารพาณิชย์ — ร้องเรียน",sub:"Commercial Banks Complaint",tag:"ธนาคาร",numbers:[{label:"ธปท.",val:"1213",big:true}],color:"var(--yellow)",note:"บัตรเครดิต หนี้ ดอกเบี้ย"},
+    {icon:"📞",name:"สำนักงานคุ้มครองสิทธิเสรีภาพ",sub:"Rights and Liberties Protection",tag:"สิทธิ",numbers:[{label:"สายด่วน",val:"1376",big:true}],color:"var(--purple)",note:"ละเมิดสิทธิมนุษยชน เลือกปฏิบัติ"},
+  ],
+  vigilante: [
+    {icon:"💪",name:"กันจอมพลัง",nameEn:"Kan Jom Phlang",desc:"กลุ่มอาสาสมัครที่ช่วยเหลือประชาชนที่ถูกเอาเปรียบ รับเรื่องร้องทุกข์และช่วยดำเนินการ โดยเฉพาะคดีโกง ไม่ได้รับความเป็นธรรม",tags:["ร้องทุกข์","คดีโกง","ช่วยเหลือ"],followers:"450K+",cases:"12,000+",fbUrl:"https://www.facebook.com/kanjomplang",fbName:"กันจอมพลัง",contact:"ผ่าน Facebook Page โดยตรง",verified:true,region:"ทั่วประเทศ"},
+    {icon:"🎥",name:"ไทยรัฐออนไลน์ — ร้องทุกข์",nameEn:"Thairath Online — Complaint",desc:"ทีมสื่อสารมวลชนที่รับเรื่องร้องทุกข์จากประชาชน นำเสนอข่าวกดดันหน่วยงาน ช่วยให้คดีได้รับความสนใจจากสาธารณะ",tags:["สื่อ","ร้องทุกข์","กดดัน"],followers:"5M+",cases:"ไม่เปิดเผย",fbUrl:"https://www.facebook.com/thairath",fbName:"Thairath Online",contact:"Inbox Facebook Page หรือเว็บไซต์",verified:true,region:"ทั่วประเทศ"},
+    {icon:"🔍",name:"เพจตามหา",nameEn:"Taam Ha — Vigilante Search",desc:"กลุ่มอาสาช่วยตามหาคนหาย เด็กหาย ผู้สูงอายุสูญหาย ประสานงานกับตำรวจและชุมชนในพื้นที่",tags:["คนหาย","เด็กหาย","ค้นหา"],followers:"890K+",cases:"8,500+",fbUrl:"https://www.facebook.com",fbName:"เพจตามหา",contact:"Inbox หรือโทรผ่าน Facebook",verified:true,region:"ทั่วประเทศ"},
+    {icon:"🐾",name:"กู้ชีพสัตว์ — Animal Rescue TH",nameEn:"Animal Rescue Thailand",desc:"กลุ่มอาสาช่วยเหลือสัตว์ที่ถูกทารุณกรรม บาดเจ็บ หรือถูกทิ้ง ประสานสัตวแพทย์และบ้านพักชั่วคราว",tags:["สัตว์","ทารุณกรรม","กู้ชีพ"],followers:"320K+",cases:"5,200+",fbUrl:"https://www.facebook.com",fbName:"Animal Rescue TH",contact:"Inbox Facebook Page",verified:false,region:"กทม. และปริมณฑล"},
+    {icon:"⚖️",name:"ทนายรัชเดช — สู้ฟรี",nameEn:"Lawyer Ratchadet — Pro Bono",desc:"ทนายอาสาที่ให้คำปรึกษาด้านกฎหมายฟรีผ่าน Facebook Live และ Inbox เน้นคดีประชาชนถูกเอาเปรียบและคดีแรงงาน",tags:["กฎหมาย","ฟรี","แรงงาน"],followers:"1.2M+",cases:"ไม่เปิดเผย",fbUrl:"https://www.facebook.com",fbName:"ทนายรัชเดช",contact:"Inbox หรือดูไลฟ์",verified:true,region:"ทั่วประเทศ"},
+    {icon:"🌊",name:"มูลนิธิกู้ภัยร่มไทร",nameEn:"Rom Sai Foundation",desc:"มูลนิธิกู้ภัยอาสาที่ทำงานน้ำ ดึงคนจมน้ำ ค้นหาผู้สูญหายในแหล่งน้ำ ประสานกับตำรวจน้ำและกู้ชีพ",tags:["จมน้ำ","กู้ภัย","น้ำ"],followers:"280K+",cases:"3,400+",fbUrl:"https://www.facebook.com",fbName:"มูลนิธิร่มไทร",contact:"โทรผ่าน Facebook หรือ Line",verified:true,region:"ทั่วประเทศ"},
+    {icon:"🚗",name:"มูลนิธิสว่างบุญธรรม",nameEn:"Sawang Boriboon Foundation",desc:"มูลนิธิกู้ภัยที่เก่าแก่ที่สุดในกรุงเทพฯ ให้บริการรถพยาบาล กู้ภัย ฉุกเฉิน 24 ชั่วโมง มีฐานทั่วกรุงเทพและปริมณฑล",tags:["กู้ภัย","รถพยาบาล","24/7"],followers:"2.1M+",cases:"150,000+/ปี",fbUrl:"https://www.facebook.com",fbName:"Sawang Boriboon",contact:"02-252-5252 หรือ Facebook",verified:true,region:"กทม. และปริมณฑล"},
+    {icon:"🔦",name:"มูลนิธิเรืองไทย",nameEn:"Ruamkatanyu Foundation",desc:"มูลนิธิกู้ภัยอีกแห่งที่ใหญ่ที่สุดในไทย ให้บริการรถพยาบาล กู้ภัยอุบัติเหตุ บริการฟรี 24 ชั่วโมง",tags:["กู้ภัย","อุบัติเหตุ","ฟรี"],followers:"1.8M+",cases:"120,000+/ปี",fbUrl:"https://www.facebook.com",fbName:"Ruamkatanyu",contact:"02-246-0199 หรือ 1646",verified:true,region:"กทม. และปริมณฑล"},
+    {icon:"🎗️",name:"สถานสงเคราะห์เด็กบ้านราชวิถี",nameEn:"Baan Ratchawithee Children Home",desc:"ศูนย์พักพิงเด็กกำพร้า เด็กถูกทอดทิ้ง และเด็กที่มีปัญหา ให้ที่พักอาศัยและการศึกษา",tags:["เด็ก","กำพร้า","ที่พัก"],followers:"180K+",cases:"300+ เด็ก",fbUrl:"https://www.facebook.com",fbName:"Baan Ratchawithee",contact:"02-354-7987",verified:true,region:"กทม."},
+    {icon:"🍚",name:"มูลนิธิอาหารปันสุข",nameEn:"Food Bank Thailand",desc:"รับบริจาคอาหารและแจกจ่ายให้ผู้ยากไร้ คนไร้บ้าน ผู้สูงอายุ สามารถร้องขอความช่วยเหลือหรือบริจาคอาหารได้",tags:["อาหาร","คนจน","บริจาค"],followers:"250K+",cases:"50,000+ มื้อ/เดือน",fbUrl:"https://www.facebook.com",fbName:"Food Bank Thailand",contact:"Facebook หรือ Line",verified:true,region:"กทม. และปริมณฑล"},
+    {icon:"🛡️",name:"ศูนย์พิทักษ์สิทธิเด็ก",nameEn:"Child Rights Protection Center",desc:"ศูนย์รับเรื่องร้องเรียนกรณีเด็กถูกทารุณกรรม ถูกล่วงละเมิด หรือถูกละเมิดสิทธิ ให้คำปรึกษาและช่วยดำเนินคดี",tags:["เด็ก","ทารุณกรรม","คุ้มครอง"],followers:"420K+",cases:"8,000+",fbUrl:"https://www.facebook.com",fbName:"Child Rights TH",contact:"02-651-8888 หรือ Facebook",verified:true,region:"ทั่วประเทศ"},
+  ]
+};
+
+// ═══════════════════════════
+//  LOGIC
+// ═══════════════════════════
+
+let activeFilter = 'all';
+
+// clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clk').textContent = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// build contact card
+function buildCard(c, i) {
+  const nums = c.numbers.map(n=>`
+    <div class="num-row">
+      <span class="num-label">${n.label}</span>
+      <a class="num-val ${n.big?'big':''}" href="tel:${n.val.replace(/[^0-9+]/g,'')}" style="color:${c.color};text-decoration:none">${n.val}</a>
+    </div>`).join('');
+
+  const tel = c.numbers[0].val.replace(/[^0-9+]/g,'');
+  const noteEsc = (c.note||'').replace(/'/g,"\\'");
+
+  return `
+    <div class="card" style="--cc:${c.color};animation-delay:${i*0.04}s">
+      <div class="card-head">
+        <div class="card-icon-wrap">${c.icon}</div>
+        <div class="card-info">
+          <div class="card-name">${c.name}</div>
+          <div class="card-sub">${c.sub}</div>
+        </div>
+        <span class="card-tag">${c.tag}</span>
+      </div>
+      <div class="card-numbers">${nums}</div>
+      <div class="card-footer">
+        <a class="call-btn" href="tel:${tel}" style="background:${c.color}">📞 โทรเลย</a>
+        ${c.note?`<button class="call-btn outline" onclick="showInfo('${c.name}','${noteEsc}')">ℹ️</button>`:''}
+      </div>
+    </div>`;
+}
+
+// build vigilante card
+function buildVigCard(v, i) {
+  const tags = v.tags.map(t=>`<span class="vig-tag">${t}</span>`).join('');
+  const contactEsc = (v.contact||'').replace(/'/g,"\\'");
+  return `
+    <div class="vig-card" style="animation-delay:${i*0.04}s">
+      <div class="vig-head">
+        <div class="vig-avatar">${v.icon}</div>
+        <div class="vig-name-block">
+          <div class="vig-name">${v.name}</div>
+          <div class="vig-en">${v.nameEn} · ${v.region}</div>
+        </div>
+        ${v.verified?'<span class="vig-verified">✓</span>':''}
+      </div>
+      <div class="vig-body">
+        <div class="vig-desc">${v.desc}</div>
+        <div class="vig-tags">${tags}</div>
+        <div class="vig-stats">
+          <div class="vig-stat"><span class="vs-num">${v.followers}</span><span class="vs-lbl">Followers</span></div>
+          <div class="vig-stat"><span class="vs-num">${v.cases}</span><span class="vs-lbl">คดี/เรื่อง</span></div>
+        </div>
+      </div>
+      <div class="vig-footer">
+        <a class="fb-btn" href="${v.fbUrl}" target="_blank" rel="noopener">f  เปิด Facebook</a>
+        <button class="call-btn outline" onclick="showInfo('${v.name}','ช่องทาง: ${contactEsc}')">ℹ️</button>
+      </div>
+    </div>`;
+}
+
+// render all
+function render() {
+  ['emergency','fire','medical','government','consumer'].forEach(cat => {
+    const data = CONTACTS[cat] || [];
+    document.getElementById(`grid-${cat}`).innerHTML = data.map((c,i)=>buildCard(c,i)).join('');
+    document.getElementById(`cnt-${cat}`).textContent = `${data.length} รายการ`;
+  });
+
+  const vigs = CONTACTS.vigilante || [];
+  document.getElementById('grid-vigilante').innerHTML = vigs.map((v,i)=>buildVigCard(v,i)).join('');
+  document.getElementById('cnt-vigilante').textContent = `${vigs.length} กลุ่ม`;
+}
+
+// filter
+function setFilter(el, cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+
+  document.getElementById('emergencyBanner').style.display =
+    (cat==='all'||cat==='emergency') ? 'flex' : 'none';
+
+  document.querySelectorAll('.contact-section').forEach(sec => {
+    const secCat = sec.dataset.cat;
+    sec.classList.toggle('hidden', cat !== 'all' && cat !== secCat);
+  });
+
+  clearSearch();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// bottom nav
+function navTo(el, cat) {
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+
+  // also sync pills
+  const pill = document.querySelector(`.cat-pill[onclick*="'${cat}'"]`);
+  if (pill) setFilter(pill, cat);
+}
+
+// search
+function doSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const clearBtn = document.getElementById('searchClear');
+  clearBtn.classList.toggle('visible', q.length > 0);
+
+  if (!q) { clearSearch(); return; }
+
+  document.querySelectorAll('.contact-section').forEach(s=>s.classList.remove('hidden'));
+  document.getElementById('emergencyBanner').style.display='flex';
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.toggle('hidden', !card.textContent.toLowerCase().includes(q));
+  });
+  document.querySelectorAll('.vig-card').forEach(card => {
+    card.classList.toggle('hidden', !card.textContent.toLowerCase().includes(q));
+  });
+  document.querySelectorAll('.emg-card').forEach(card => {
+    card.classList.toggle('hidden', !card.textContent.toLowerCase().includes(q));
+  });
+}
+
+function clearSearch() {
+  document.querySelectorAll('.card,.vig-card,.emg-card').forEach(c=>c.classList.remove('hidden'));
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').classList.remove('visible');
+}
+
+// info modal (bottom sheet)
+function showInfo(title, text) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// scroll-to-top button
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+
+// init
+render();
+</script>
+</body>
+</html>
